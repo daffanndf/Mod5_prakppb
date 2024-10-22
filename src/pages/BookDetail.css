@@ -1,0 +1,66 @@
+/* BookDetail.css */
+
+.Book-detail-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #1c1c1e;
+    color: white;
+  }
+  
+  .Book-detail-card {
+    display: flex;
+    flex-direction: row;
+    background-color: #2c2c2e;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    max-width: 800px;
+    width: 100%;
+    overflow: hidden;
+  }
+  
+  .Book-image {
+    max-width: 300px;
+    max-height: 400px;
+    border-radius: 12px;
+    margin-right: 20px;
+  }
+  
+  .Book-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+  
+  .Book-info h2 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: #ff9500;
+  }
+  
+  .Book-genre,
+  .Book-rate {
+    font-size: 1.2rem;
+    margin: 5px 0;
+  }
+  
+  .Book-description {
+    font-size: 1rem;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+  
+  @media (max-width: 768px) {
+    .Book-detail-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  
+    .Book-image {
+      margin-right: 0;
+      margin-bottom: 20px;
+    }
+  }
