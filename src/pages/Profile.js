@@ -1,56 +1,66 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import "./Profile.css";
+import axios from "axios";
 
-export default function Profile() {
-    const profiles = [
-        {
-            name: "Asha",
-            followers: 120,
-            github: "https://github.com/asaanjelina",
-            username: "asaanjelina",
-        },
-        {
-            name: "Allwan",
-            followers: 250,
-            github: "https://github.com/allwzz",
-            username: "allwzz",
-        },
-        {
-            name: "Daffa",
-            followers: 1000,
-            github: "https://github.com/daffanndf",
-            username: "daffanndf",
-        },
-        {
-            name: "Sandro",
-            followers: 180,
-            github: "https://github.com/Sandro-C-Rajagukguk",
-            username: "Sandro-C-Rajagukguk",
-        },
-    ];
+const Profile = () => {
+  const [userData, setUserData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {        
+        const usernames = ["asaanjelina", "allwzz", "daffanndf", "Sandro-C-Rajagukguk"];
+        const responses = await Promise.all(
+          usernames.map(username => axios.get(`https://api.github.com/users/${username}`))
+        );
+        
+        const users = responses.map(response => response.data);
+        setUserData(users);
+      } catch (error) {
+        setError("Error fetching user data");
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", color: "white" }}>
-            <h1>Profile</h1>
-            <div style={{ width: "80%", display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px" }}>
-                {profiles.map((profile, index) => (
-                    <div key={index} style={{ padding: "20px", border: "1px solid #ccc", borderRadius: "10px", textAlign: "center" }}>
-                        <img
-                            src={`https://github.com/${profile.username}.png`}
-                            alt={`${profile.name}'s profile`}
-                            style={{ width: "100px", height: "100px", borderRadius: "50%" }}
-                        />
-                        <h2>{profile.name}</h2>
-                        <p>Followers: {profile.followers}</p>
-                        <a href={profile.github} style={{ color: "#61dafb" }} target="_blank" rel="noopener noreferrer">
-                            GitHub
-                        </a>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
+    fetchUserData();
+  }, []);
 
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+
+  return (
+    <div className="profile-container">
+      <h1 className="profile-title">Profil Anggota</h1>
+      <div className="profile-list">
+        {userData.map((user) => (
+          <div key={user.id} className="profile-card">
+            <img 
+              src={user.avatar_url || "https://via.placeholder.com/150"} 
+              alt={user.login} 
+              className="profile-image" 
+            />
+            <h2 className="profile-name">{user.name || user.login}</h2>
+            <p className="profile-followers">{user.followers || "N/A"} Followers</p>
+            <a 
+              href={user.html_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="profile-link"
+            >
+              GitHub Profile
+            </a>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Profile;
 
 
 

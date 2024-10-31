@@ -1,77 +1,74 @@
-// src/pages/Login.js
 import React, { useState } from 'react';
-import './Login.css'; // Optional: Add your CSS file
+import axios from 'axios';
+import './Login.css';
 
-const Login = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState(null);
+const Login = ({ onLogin }) => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        setError(null); // Clear previous errors
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setErrorMessage(''); 
 
-        // Mock successful login
-        if (email === 'eve.holt@reqres.in' && password === 'cityslicka') {
-            // Redirect to Movie page after successful login
-            window.location.href = '/movie';
-        } else {
-            setError('Invalid credentials');
-        }
+    try {
+   
+      const response = await axios.get('https://reqres.in/api/users?page=2');
+      const users = response.data.data; 
 
-        // Uncomment this section to use the Reqres API
-        /*
-        try {
-            const response = await fetch('https://reqres.in/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            });
+      
+      const isValidUser = users.some(
+        (user) => user.first_name === firstName && user.last_name === lastName
+      );
 
-            if (!response.ok) {
-                throw new Error('Login failed');
-            }
+      if (isValidUser) {
+     
+        onLogin();
+      } else {
+       
+        setErrorMessage('Invalid credentials. Please try again.');
+      }
+    } catch (error) {
+      setErrorMessage('Login failed. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            const data = await response.json();
-            console.log('Login successful:', data);
-            // Redirect to the Movie page
-            window.location.href = '/movie';
-        } catch (err) {
-            setError(err.message);
-            console.error(err);
-        }
-        */
-    };
-
-    return (
-        <div className="login-container">
-            <h2>Login</h2>
-            <form onSubmit={handleLogin}>
-                <div>
-                    <label>Email:</label>
-                    <input
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
-                </div>
-                <div>
-                    <label>Password:</label>
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit">Login</button>
-                {error && <p className="error">{error}</p>}
-            </form>
+  return (
+    <div className="login-container">
+      <h2>Login</h2>
+      <form onSubmit={handleLogin}>
+        <div className="form-group">
+          <label>Username</label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            placeholder='First Name'
+            required
+          />
         </div>
-    );
+        <div className="form-group">
+          <label>Password</label>
+          <input
+            type="password" 
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            placeholder='Last Name'
+            required
+          />
+        </div>
+        {errorMessage && <p className="error">{errorMessage}</p>}
+        <button type="submit" disabled={loading}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default Login;
+
