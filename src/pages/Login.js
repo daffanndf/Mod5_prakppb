@@ -1,39 +1,39 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import './Login.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import axios from "axios"; // Import axios
+import "./Login.css"; // Add styles for the form
 
-const Login = ({ onLogin }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [users, setUsers] = useState([]); // State for storing users from the API
+  const navigate = useNavigate(); // Initialize useNavigate
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setErrorMessage(''); 
+  // Fetch users from the API when the component mounts
+  useEffect(() => {
+    axios
+      .get("https://reqres.in/api/users?page=2")
+      .then((response) => {
+        setUsers(response.data.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+        setError("Failed to fetch users. Please try again.");
+      });
+  }, []);
 
-    try {
-   
-      const response = await axios.get('https://reqres.in/api/users?page=2');
-      const users = response.data.data; 
+  const handleLogin = (e) => {
+    e.preventDefault();
+    const user = users.find(
+      (u) => u.first_name === username && u.last_name === password
+    );
 
-      
-      const isValidUser = users.some(
-        (user) => user.first_name === firstName && user.last_name === lastName
-      );
-
-      if (isValidUser) {
-     
-        onLogin();
-      } else {
-       
-        setErrorMessage('Invalid credentials. Please try again.');
-      }
-    } catch (error) {
-      setErrorMessage('Login failed. Please try again later.');
-    } finally {
-      setLoading(false);
+    if (user) {
+      alert("Login successful!");
+      navigate("/movie");
+    } else {
+      setError("Invalid username or password.");
     }
   };
 
@@ -42,33 +42,33 @@ const Login = ({ onLogin }) => {
       <h2>Login</h2>
       <form onSubmit={handleLogin}>
         <div className="form-group">
-          <label>Username</label>
+          <label htmlFor="username">Username (First Name)</label>
           <input
             type="text"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            placeholder='First Name'
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
         </div>
         <div className="form-group">
-          <label>Password</label>
+          <label htmlFor="password">Password (Last Name)</label>
           <input
-            type="password" 
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            placeholder='Last Name'
+            type="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        {errorMessage && <p className="error">{errorMessage}</p>}
-        <button type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
+        {error && <p className="error">{error}</p>}
+        <button type="submit">Login</button>
       </form>
     </div>
   );
-};
+}
 
-export default Login;
+
+
+
 
